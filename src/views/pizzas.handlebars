@@ -1,0 +1,34 @@
+<div class="hero">
+    <h1>Nuestras Pizzas</h1>
+    <p>Las mejores pizzas de la ciudad</p>
+</div>
+
+<div class="pizza-grid">
+    {{#each pizzas}}
+        <div class="pizza-card">
+            <div class="pizza-icon">🍕</div>
+            <h2 class="pizza-title">{{name}}</h2>
+            <div class="pizza-info">
+                <span class="pizza-size">{{tam}}</span>
+                <span class="pizza-price">${{price}}</span>
+            </div>
+            <button class="order-button">Ordenar Ahora</button>
+        </div>
+    {{/each}}
+</div>
+
+<nav class="pagination-container">
+    {{#if hasPrevPage}}
+        <a href="/pizzas?page={{prevPage}}" class="nav-button prev">← Anterior</a>
+    {{else}}
+        <button class="nav-button prev disabled">← Anterior</button>
+    {{/if}}
+
+    <span class="page-indicator">Página {{currentPage}} de {{totalPages}}</span>
+
+    {{#if hasNextPage}}
+        <a href="/pizzas?page={{nextPage}}" class="nav-button next">Siguiente →</a>
+    {{else}}
+        <button class="nav-button next disabled">Siguiente →</button>
+    {{/if}}
+</nav>
