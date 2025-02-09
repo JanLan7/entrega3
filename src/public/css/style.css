@@ -193,3 +193,11 @@ body {
         padding: 0.6rem 1rem;
     }
 }
+
+.pizzas-container {
+    background-color: #343a40; /* Fondo oscuro */
+    color: white; /* Texto blanco */
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+}

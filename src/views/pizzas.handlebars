@@ -1,34 +1,33 @@
-<div class="hero">
-    <h1>Nuestras Pizzas</h1>
-    <p>Las mejores pizzas de la ciudad</p>
-</div>
-
-<div class="pizza-grid">
-    {{#each pizzas}}
-        <div class="pizza-card">
-            <div class="pizza-icon">🍕</div>
-            <h2 class="pizza-title">{{name}}</h2>
-            <div class="pizza-info">
-                <span class="pizza-size">{{tam}}</span>
-                <span class="pizza-price">${{price}}</span>
+<!-- Contenedor principal con estilos personalizados -->
+<div class="pizzas-container">
+    <div class="container mt-4 text-center">
+        <h1 class="text-center">Lista de Pizzas</h1>
+        
+        <!-- Contenedor de las tarjetas de pizzas -->
+        <div class="row justify-content-center">
+            {{#each pizzas}}
+            <div class="col-md-4">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">{{nombre}}</h5>
+                        <p class="card-text">Tamaño: {{tam}}</p>
+                        <p class="card-text">Precio: ${{precio}}</p>
+                        <p class="card-text">Cantidad: {{cantidad}}</p>
+                        <a href="#" class="btn btn-primary"><i class="fa-solid fa-cart-shopping"></i> Ordenar</a>
+                    </div>
+                </div>
             </div>
-            <button class="order-button">Ordenar Ahora</button>
+            {{/each}}
         </div>
-    {{/each}}
+
+        <!-- Contenedor de los botones de paginación -->
+        <div class="d-flex justify-content-center mt-3">
+            {{#if hasPrevPage}}
+                <a href="/pizzas?page={{prevPage}}" class="btn btn-outline-secondary mx-2">⬅ Anterior</a>
+            {{/if}}
+            {{#if hasNextPage}}
+                <a href="/pizzas?page={{nextPage}}" class="btn btn-outline-secondary mx-2">Siguiente ➡</a>
+            {{/if}}
+        </div>
+    </div>
 </div>
-
-<nav class="pagination-container">
-    {{#if hasPrevPage}}
-        <a href="/pizzas?page={{prevPage}}" class="nav-button prev">← Anterior</a>
-    {{else}}
-        <button class="nav-button prev disabled">← Anterior</button>
-    {{/if}}
-
-    <span class="page-indicator">Página {{currentPage}} de {{totalPages}}</span>
-
-    {{#if hasNextPage}}
-        <a href="/pizzas?page={{nextPage}}" class="nav-button next">Siguiente →</a>
-    {{else}}
-        <button class="nav-button next disabled">Siguiente →</button>
-    {{/if}}
-</nav>
