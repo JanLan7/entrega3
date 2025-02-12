@@ -1,96 +1,119 @@
-// Importamos mongoose para conectarnos a la base de datos MongoDB.
-import mongoose from "mongoose";
-
-// Importamos el modelo OrderModel definido en order.model.js para interactuar con la colección "orders".
-import OrderModel from "./models/order.model.js";
-
-// Definimos una función principal asincrónica que manejará la conexión a la base de datos y la paginación.
-const main = async () => {
-    // Conectamos a MongoDB (debes agregar la URL de conexión dentro de las comillas).
-    mongoose.connect("mongodb+srv://jvclases2020:coderhouse@cluster0.727im.mongodb.net/MongoAvanzado3?retryWrites=true&w=majority&appName=Cluster0");
-
-    // Paginación: buscamos en la colección "orders" aquellos documentos cuyo campo "tam" sea "familiar".
-    // Limitamos los resultados a 4 documentos por página y obtenemos la primera página.
-    const resultado = await OrderModel.paginate({ "tam": "familiar" }, { limit: 4, page: 1 });
-
-    // Mostramos el resultado en la consola.
-    console.log(resultado);
-}
-main();
-
-// ------------------------ Creación de un servidor con Express ------------------------
-
-// Importamos express para manejar el servidor web.
 import express from "express";
+import exphbs from "express-handlebars";
+import "./database.js";
+import ProductModel from "./models/product.model.js";
 
-// Importamos el motor de plantillas Handlebars para renderizar vistas dinámicas.
-import { engine } from "express-handlebars";
+import productsRouter from "./routes/products.router.js";
+import cartsRouter from "./routes/carts.router.js";
+import viewsRouter from "./routes/views.router.js";
 
-// Creamos una instancia de la aplicación Express.
 const app = express();
-
-// Definimos el puerto en el que correrá el servidor.
 const PUERTO = 8080;
 
-// Conectamos nuevamente a MongoDB (debes agregar la URL de conexión dentro de las comillas).
-mongoose.connect("mongodb+srv://jvclases2020:coderhouse@cluster0.727im.mongodb.net/MongoAvanzado3?retryWrites=true&w=majority&appName=Cluster0");
-
-// ------------------------ Middleware ------------------------
-
-// Habilitamos el middleware para procesar datos en formato JSON en las peticiones.
+// Middleware
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Habilitamos el middleware para procesar datos codificados en URL (útil para formularios).
-app.use(express.urlencoded({ extended: true }));
+// Configuración de rutas estáticas
+app.use(express.static("./src/public"));
 
-// Agregar después de la creación de la app y antes de las rutas
-app.use(express.static('./src/public'));
-
-// ------------------------ Configuración de Handlebars ------------------------
-
-// Definimos el motor de plantillas que usará Express.
-app.engine("handlebars", engine());
-
-// Establecemos Handlebars como el motor de vistas.
+// Configuración de Handlebars con helpers
+app.engine("handlebars", exphbs.engine({
+    helpers: {
+        multiply: (a, b) => a * b,
+        eq: (v1, v2) => v1 === v2
+    },
+    runtimeOptions: {
+        allowProtoPropertiesByDefault: true,
+        allowProtoMethodsByDefault: true
+    }
+}));
 app.set("view engine", "handlebars");
-
-// Especificamos el directorio donde estarán ubicadas las vistas.
 app.set("views", "./src/views");
 
-// ------------------------ Definición de Rutas ------------------------
+// Rutas - el orden es importante
+app.use("/", viewsRouter);
+app.use("/api/products", productsRouter);
+app.use("/api/carts", cartsRouter);
 
-// Ruta para obtener una lista de pizzas con paginación.
-app.get("/pizzas", async (req, res) => {
-    // Obtenemos el número de página desde los parámetros de la URL; si no se proporciona, usamos la página 1 por defecto.
-    const page = req.query.page || 1;
+// Función para inicializar productos
+async function inicializarProductos() {
+    try {
+        const productosExistentes = await ProductModel.find();
+        
+        if (productosExistentes.length === 0) {
+            const productosIniciales = [
+                {
+                    title: "Guitarra Eléctrica Fender Stratocaster",
+                    description: "Guitarra eléctrica clásica, cuerpo de aliso, acabado sunburst, 22 trastes",
+                    price: 1299.99,
+                    code: "GUIT001",
+                    stock: 15,
+                    category: "Guitarras",
+                    status: true
+                },
+                {
+                    title: "Piano Digital Yamaha P-125",
+                    description: "Piano digital de 88 teclas con sonido Pure CF y polifonía de 192 notas",
+                    price: 699.99,
+                    code: "PIAN001",
+                    stock: 8,
+                    category: "Pianos",
+                    status: true
+                },
+                {
+                    title: "Batería Acústica Pearl Export",
+                    description: "Kit completo de batería con bombo de 22', tarola y 3 toms",
+                    price: 899.99,
+                    code: "BAT001",
+                    stock: 5,
+                    category: "Baterías",
+                    status: true
+                },
+                {
+                    title: "Bajo Eléctrico Ibanez SR500",
+                    description: "Bajo de 4 cuerdas, cuerpo de caoba, pastillas Bartolini",
+                    price: 749.99,
+                    code: "BAJ001",
+                    stock: 12,
+                    category: "Bajos",
+                    status: true
+                },
+                {
+                    title: "Saxofón Alto Yamaha YAS-280",
+                    description: "Saxofón alto en Mi♭, acabado dorado, incluye estuche",
+                    price: 1099.99,
+                    code: "SAX001",
+                    stock: 6,
+                    category: "Viento",
+                    status: true
+                },
+                {
+                    title: "Violín Stradella MV1411",
+                    description: "Violín 4/4 de estudio, tapa de abeto, incluye arco y estuche",
+                    price: 299.99,
+                    code: "VIO001",
+                    stock: 20,
+                    category: "Cuerdas",
+                    status: true
+                }
+            ];
 
-    // Definimos el límite de elementos por página.
-    const limit = 2;
+            await ProductModel.insertMany(productosIniciales);
+            console.log("Productos iniciales agregados");
+        }
+    } catch (error) {
+        console.error("Error al inicializar productos:", error);
+    }
+}
 
-    // Obtenemos las pizzas paginadas desde la base de datos.
-    const pizzas = await OrderModel.paginate({}, { limit, page });
-
-    // Transformamos los documentos recuperados para eliminar el campo _id.
-    const pizzasResultadoFinal = pizzas.docs.map(pizza => {
-        const { _id, ...rest } = pizza.toObject(); // Convertimos el documento a objeto y eliminamos _id.
-        return rest;
+// Iniciamos el servidor después de inicializar los productos
+async function iniciarServidor() {
+    await inicializarProductos();
+    
+    app.listen(PUERTO, () => {
+        console.log(`Servidor escuchando en el puerto ${PUERTO}`);
     });
+}
 
-    // Renderizamos la vista "pizzas" y enviamos los datos de paginación.
-    res.render("pizzas", {
-        pizzas: pizzasResultadoFinal,  // Lista de pizzas procesadas.
-        hasPrevPage: pizzas.hasPrevPage,  // ¿Hay una página anterior?
-        hasNextPage: pizzas.hasNextPage,  // ¿Hay una página siguiente?
-        prevPage: pizzas.prevPage,  // Número de la página anterior.
-        nextPage: pizzas.nextPage,  // Número de la página siguiente.
-        currentPage: pizzas.page,   // Página actual.
-        totalPages: pizzas.totalPages  // Total de páginas disponibles.
-    });
-});
-
-// ------------------------ Inicialización del Servidor ------------------------
-
-// Iniciamos el servidor en el puerto definido.
-app.listen(PUERTO, () => {
-    console.log("si si funciona"); // Mensaje de confirmación en la consola.
-});
+iniciarServidor();

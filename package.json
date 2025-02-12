@@ -1,10 +1,10 @@
 {
-  "name": "practicafinal",
+  "name": "12-2-25",
   "version": "1.0.0",
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "node --watch src/app.js"
+    "dev": "node --watch  src/app.js"
   },
   "keywords": [],
   "author": "",
@@ -13,7 +13,6 @@
   "dependencies": {
     "express": "^4.21.2",
     "express-handlebars": "^8.0.1",
-    "mongoose": "^8.9.5",
-    "mongoose-paginate-v2": "^1.9.0"
+    "mongoose": "^8.10.0"
   }
 }

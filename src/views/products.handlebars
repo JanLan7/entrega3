@@ -1,0 +1,111 @@
+<h1 class="text-center mb-4">Catálogo de Instrumentos Musicales</h1>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form action="/products" method="GET" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Ordenar por precio</label>
+                <select name="sort" class="form-select">
+                    <option value="" {{#if (eq sort '')}}selected{{/if}}>Sin ordenar</option>
+                    <option value="asc" {{#if (eq sort 'asc')}}selected{{/if}}>Menor a mayor</option>
+                    <option value="desc" {{#if (eq sort 'desc')}}selected{{/if}}>Mayor a menor</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Categoría</label>
+                <select name="category" class="form-select">
+                    <option value="" {{#if (eq category '')}}selected{{/if}}>Todas las categorías</option>
+                    <option value="Guitarras" {{#if (eq category 'Guitarras')}}selected{{/if}}>Guitarras</option>
+                    <option value="Bajos" {{#if (eq category 'Bajos')}}selected{{/if}}>Bajos</option>
+                    <option value="Baterías" {{#if (eq category 'Baterías')}}selected{{/if}}>Baterías</option>
+                    <option value="Pianos" {{#if (eq category 'Pianos')}}selected{{/if}}>Pianos</option>
+                    <option value="Viento" {{#if (eq category 'Viento')}}selected{{/if}}>Viento</option>
+                    <option value="Cuerdas" {{#if (eq category 'Cuerdas')}}selected{{/if}}>Cuerdas</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-filter me-2"></i>Aplicar filtros
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{#if productos.length}}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {{#each productos}}
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">{{title}}</h5>
+                        <p class="card-text">{{description}}</p>
+                        <p class="card-text"><strong>Precio:</strong> ${{price}}</p>
+                        <p class="card-text"><strong>Stock:</strong> {{stock}} unidades</p>
+                        <p class="card-text"><span class="badge bg-secondary">{{category}}</span></p>
+                        <div class="d-flex justify-content-between mt-3">
+                            <a href="/products/{{_id}}" class="btn btn-outline-primary">
+                                <i class="fas fa-info-circle me-1"></i>Detalles
+                            </a>
+                            <button onclick="agregarAlCarrito('{{_id}}')" class="btn btn-success">
+                                <i class="fas fa-cart-plus me-1"></i>Agregar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {{/each}}
+    </div>
+
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {{#if hasPrevPage}}
+                <li class="page-item">
+                    <a class="page-link" href="/products?page={{prevPage}}&limit={{limit}}&sort={{sort}}&category={{category}}">
+                        <i class="fas fa-chevron-left me-1"></i>Anterior
+                    </a>
+                </li>
+            {{/if}}
+            
+            <li class="page-item disabled">
+                <span class="page-link">Página {{currentPage}} de {{totalPages}} (Total: {{totalDocs}})</span>
+            </li>
+            
+            {{#if hasNextPage}}
+                <li class="page-item">
+                    <a class="page-link" href="/products?page={{nextPage}}&limit={{limit}}&sort={{sort}}&category={{category}}">
+                        Siguiente<i class="fas fa-chevron-right ms-1"></i>
+                    </a>
+                </li>
+            {{/if}}
+        </ul>
+    </nav>
+{{else}}
+    <div class="alert alert-info text-center">
+        <i class="fas fa-info-circle me-2"></i>No hay productos disponibles en este momento.
+    </div>
+{{/if}}
+
+<script>
+function agregarAlCarrito(productId) {
+    const cartId = "65dc4e3a9c2b35655a2410e4";
+    
+    fetch(`/api/carts/${cartId}/product/${productId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ quantity: 1 })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const toast = new bootstrap.Toast(document.createElement('div'));
+        toast.show();
+        alert('¡Producto agregado al carrito!');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al agregar al carrito');
+    });
+}
+</script>
